@@ -1,5 +1,3 @@
-const LOG_CAPACITY = 20;
-
 var sheetTable = {};
 
 function doGet(e) {
@@ -52,15 +50,7 @@ function pushQueue(param) {
   }
 
   const uuid = Utilities.getUuid();
-  const json = JSON.stringify({
-    uuid       : uuid,
-    channelId  : param.channel_id,
-    userId     : param.user_id,
-    command    : param.command,
-    text       : param.text,
-    responseUrl: param.response_url,
-  });
-
+  const json = JSON.stringify(Object.assign({uuid: uuid}, param));
   queueSheet.appendRow([uuid, json]);
 }
 
@@ -76,22 +66,6 @@ function doneQueue(id) {
   }
 
   queueSheet.deleteRow(rowIndex + 1);
-}
-
-function log(...args) {
-  const logSheet = obtainSheet("log");
-  if (!logSheet) {
-    return;
-  }
-
-  logSheet.appendRow([Date.now(), ...args]);
-
-  const logLength = logSheet.getLastRow();
-  if (logLength < LOG_CAPACITY) {
-    return;
-  }
-
-  logSheet.deleteRows(1, logLength - LOG_CAPACITY);
 }
 
 function obtainSheet(sheetName) {
@@ -114,8 +88,4 @@ function obtainSheet(sheetName) {
   }
 
   return null;
-}
-
-function test() {
-  done("6c5d3410-d330-4e39-b036-d14199b695ae");
 }

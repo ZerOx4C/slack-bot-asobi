@@ -15,11 +15,11 @@ type config struct {
 
 type request struct {
 	Uuid        *string `json:"uuid,omitempty"`
-	ChannelId   *string `json:"channelId,omitempty"`
-	UserId      *string `json:"userId,omitempty"`
+	ChannelId   *string `json:"channel_id,omitempty"`
+	UserId      *string `json:"user_id,omitempty"`
 	Command     *string `json:"command,omitempty"`
 	Text        *string `json:"text,omitempty"`
-	ResponseUrl *string `json:"responseUrl,omitempty"`
+	ResponseUrl *string `json:"response_url,omitempty"`
 }
 
 type slackPayload struct {
