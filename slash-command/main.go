@@ -14,13 +14,12 @@ type config struct {
 }
 
 type request struct {
-	uuid        string
-	unixtime    int64
-	channelId   string
-	userId      string
-	command     string
-	text        string
-	responseUrl string
+	Uuid        *string `json:"uuid,omitempty"`
+	ChannelId   *string `json:"channelId,omitempty"`
+	UserId      *string `json:"userId,omitempty"`
+	Command     *string `json:"command,omitempty"`
+	Text        *string `json:"text,omitempty"`
+	ResponseUrl *string `json:"responseUrl,omitempty"`
 }
 
 type slackPayload struct {
@@ -89,22 +88,13 @@ func polling(config config) error {
 		return err
 	}
 
-	queue := [][]any{}
+	queue := []request{}
 	err = json.Unmarshal(responseBytes, &queue)
 	if err != nil {
 		return err
 	}
 
-	for _, stringQueueItem := range queue {
-		request := request{}
-		request.uuid = stringQueueItem[0].(string)
-		request.unixtime, _ = stringQueueItem[1].(int64)
-		request.channelId = stringQueueItem[2].(string)
-		request.userId = stringQueueItem[3].(string)
-		request.command = stringQueueItem[4].(string)
-		request.text = stringQueueItem[5].(string)
-		request.responseUrl = stringQueueItem[6].(string)
-
+	for _, request := range queue {
 		err := process(config, request)
 		if err != nil {
 			return err
@@ -115,16 +105,16 @@ func polling(config config) error {
 }
 
 func process(config config, request request) error {
-	slackResponseUrl, err := url.Parse(request.responseUrl)
+	slackResponseUrl, err := url.Parse(*request.ResponseUrl)
 	if err != nil {
 		return err
 	}
 
 	slackResponseValues := url.Values{}
 
-	if request.command == "/sushi" {
+	if *request.Command == "/sushi" {
 		slackPayload := slackPayload{}
-		slackPayload.Text = str(fmt.Sprintf("hey! %s omachi!", request.text))
+		slackPayload.Text = str(fmt.Sprintf("hey! %s omachi!", *request.Text))
 		slackPayload.ResponseType = str("in_channel")
 		payloadJson, err := jsonStringify(slackPayload)
 		if err != nil {
@@ -147,7 +137,7 @@ func process(config config, request request) error {
 	}
 
 	gasDoneValues := url.Values{}
-	gasDoneValues.Set("uuid", request.uuid)
+	gasDoneValues.Set("uuid", *request.Uuid)
 
 	response, err = post(gasDoneUrl, gasDoneValues)
 	if err != nil {

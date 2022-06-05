@@ -42,7 +42,7 @@ function getQueue() {
     return [];
   }
 
-  return queueSheet.getRange(1, 1, queueLength, queueSheet.getLastColumn()).getValues();
+  return queueSheet.getRange(1, 2, queueLength).getValues().map(values => JSON.parse(values[0]));
 }
 
 function pushQueue(param) {
@@ -51,15 +51,17 @@ function pushQueue(param) {
     return;
   }
 
-  queueSheet.appendRow([
-    Utilities.getUuid(),
-    Date.now(),
-    param.channel_id,
-    param.user_id,
-    param.command,
-    param.text,
-    param.response_url,
-  ]);
+  const uuid = Utilities.getUuid();
+  const json = JSON.stringify({
+    uuid       : uuid,
+    channelId  : param.channel_id,
+    userId     : param.user_id,
+    command    : param.command,
+    text       : param.text,
+    responseUrl: param.response_url,
+  });
+
+  queueSheet.appendRow([uuid, json]);
 }
 
 function doneQueue(id) {
